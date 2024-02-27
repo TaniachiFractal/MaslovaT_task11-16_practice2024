@@ -16,7 +16,7 @@ namespace MaslovaT_task12_practice2024
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SudokuForm());
+            Application.Run(new SudokuFormMain());
         }
     }
 }
