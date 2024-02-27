@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace MaslovaT_task12_practice2024
@@ -27,11 +28,11 @@ namespace MaslovaT_task12_practice2024
         /// <summary>
         /// Main array
         /// </summary>
-        static byte[,] sudoku = new byte[FLD_SZ, FLD_SZ];
+        static SudokuElement[,] sudoku = new SudokuElement[FLD_SZ, FLD_SZ];
         /// <summary>
-        /// Matrix that contains buttons to click on
+        /// Matrix that contains TextBoxes to click on
         /// </summary>
-        static private Button[,] buttonArray = new Button[FLD_SZ, FLD_SZ];
+        static private TextBox[,] textBoxArray = new TextBox[FLD_SZ, FLD_SZ];
 
         #endregion
 
@@ -63,9 +64,10 @@ namespace MaslovaT_task12_practice2024
         /// </summary>
         private void SudokuForm_Load(object sender, EventArgs e)
         {
-            CELL_SZ = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height / 25;
-            PADDING_BIG = CELL_SZ / 3;
-            PADDING_SMALL = CELL_SZ / 10;
+            InitSizeVars();
+            InitEmptySudoku();
+
+            OpenSudokuFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
 
             DrawGameField();
         }
@@ -98,28 +100,28 @@ namespace MaslovaT_task12_practice2024
                 int paddingX = 0;
                 for (int j = 0; j < FLD_SZ; j++)
                 {
-                    buttonArray[i, j] = new Button();
-                    var currBt = buttonArray[i, j];
+                    textBoxArray[i, j] = new TextBox();
+                    var currTB = textBoxArray[i, j];
 
-                    currBt.Name = "bt" + i + '_' + j;
-                    currBt.Location = new System.Drawing.Point(j * CELL_SZ + PADDING_BIG + paddingX, i * CELL_SZ + PADDING_BIG + btLoadSudoku.Bottom + paddingY);
-                    currBt.Size = new System.Drawing.Size(CELL_SZ, CELL_SZ);
+                    currTB.Name = "tb" + i + '_' + j;
+                    currTB.Location = new System.Drawing.Point(j * CELL_SZ + PADDING_BIG + paddingX, i * CELL_SZ + PADDING_BIG + btLoadSudoku.Bottom + paddingY);
+                    
+                    currTB.Size = new System.Drawing.Size(CELL_SZ, CELL_SZ);
 
-                    currBt.FlatStyle = FlatStyle.Flat;
-                    currBt.FlatAppearance.BorderColor = Color.LightGray;
-                    currBt.FlatAppearance.BorderSize = 1;
+                    currTB.BackColor = Color.White;
 
-                    currBt.BackColor = Color.White;
+                    currTB.Text = sudoku[i,j].ToString();
+                    currTB.ReadOnly = sudoku[i, j].locked;
 
-                    currBt.Text = i.ToString();
-                    currBt.ForeColor = Color.Black;
-                    currBt.Font = new Font(this.Font.FontFamily,(int)Math.Floor(CELL_SZ/2.3)  , FontStyle.Regular);
+                    currTB.ForeColor = Color.Black;
+                    currTB.Font = new Font(this.Font.FontFamily, (int)Math.Floor(CELL_SZ/1.9), FontStyle.Regular);
+                    currTB.TextAlign = HorizontalAlignment.Center;
 
-                    Controls.Add(buttonArray[i,j]);
+                    Controls.Add(textBoxArray[i,j]);
 
                     if (j % 3 == 2) paddingX += PADDING_SMALL;
                 }
-                if (i % 3 == 2) paddingY += PADDING_SMALL;
+                if (i % 3 == 2) paddingY += PADDING_SMALL+2;
             }
 
 
@@ -129,17 +131,81 @@ namespace MaslovaT_task12_practice2024
         /// Draw other controls based on cell size
         /// </summary>
         private void RenderOtherControls()
+        {       
+            btLoadSudoku.Location = new System.Drawing.Point(PADDING_BIG, PADDING_BIG);
+            btLoadSudoku.Size = new System.Drawing.Size(CELL_SZ * FLD_SZ + PADDING_SMALL*2, (int)(CELL_SZ*1.5));
+            btLoadSudoku.Font = new Font(this.Font.FontFamily, (int)Math.Floor(CELL_SZ / 1.6), FontStyle.Regular);
+
+            this.Size = new System.Drawing.Size(CELL_SZ * FLD_SZ + PADDING_BIG * 4, 
+                30 + PADDING_BIG * 4 + PADDING_SMALL * 3 + CELL_SZ * FLD_SZ + btLoadSudoku.Height);
+        }
+
+        /// <summary>
+        /// Read the sudoku array and update the text boxes
+        /// </summary>
+        private void UpdateGameField()
         {
-            this.Size = new System.Drawing.Size(CELL_SZ*FLD_SZ+PADDING_BIG*4, CELL_SZ * FLD_SZ + PADDING_BIG*6 + btLoadSudoku.Bottom);
-            btLoadSudoku.Location = new System.Drawing.Point( PADDING_BIG ,  PADDING_BIG );
-            btLoadSudoku.Width = CELL_SZ*FLD_SZ+PADDING_SMALL*2;
+            for (int i = 0; i < FLD_SZ; i++)
+            {
+                for (int j = 0; j < FLD_SZ; j++)
+                {
+                    textBoxArray[i, j].Text = sudoku[i, j].ToString();
+                    textBoxArray[i, j].ReadOnly = sudoku[i, j].locked;
+                }
+            }
         }
 
         #endregion
 
         #region Working with data
 
+        /// <summary>
+        /// Change the dimens vars based on screen size
+        /// </summary>
+        static void InitSizeVars()
+        {
+            CELL_SZ = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height / 25;
+            PADDING_BIG = CELL_SZ / 3;
+            PADDING_SMALL = CELL_SZ / 10;
+        }
 
+        /// <summary>
+        /// Initialize an empty sudoku
+        /// </summary>
+        static void InitEmptySudoku()
+        {
+            for (int i = 0; i < FLD_SZ; i++)
+            {
+                for (int j = 0; j < FLD_SZ; j++)
+                {
+                    sudoku[i, j] = new SudokuElement();
+                }
+            }
+        }
+
+        static bool ReadSudoku()
+        {
+            try
+            {
+                StreamReader sr = new StreamReader(sudokuFileLocation);
+                string @iterator;
+                while ((@iterator = sr.ReadLine()) != null)
+                {
+                    if (@iterator != string.Empty)
+                    {
+
+                    }
+                }
+                sr.Close();
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine("Ошибка чтения файла лабиринта " + ex.Message);
+                return false;
+            }
+            return true;
+
+        }
 
         #endregion
 
