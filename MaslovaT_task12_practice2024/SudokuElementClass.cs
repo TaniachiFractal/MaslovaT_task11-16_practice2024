@@ -16,7 +16,7 @@ namespace MaslovaT_task12_practice2024
         /// <summary>
         /// The digit sudoku element has
         /// </summary>
-        byte digit;
+        public byte digit;
         /// <summary>
         /// Whether the elemnt is from an unsolved state and should not be editable
         /// </summary>
