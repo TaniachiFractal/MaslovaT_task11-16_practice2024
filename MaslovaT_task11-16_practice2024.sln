@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaslovaT_task12_practice202
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaslovaT_task15_practice2024", "MaslovaT_task15_practice2024\MaslovaT_task15_practice2024.csproj", "{8F8FC3B3-5038-4C03-8D07-73AD0CB7ED39}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaslovaT_task16_practice2024", "MaslovaT_task16_practice2024\MaslovaT_task16_practice2024.csproj", "{5F024EE8-C52C-4167-BAE0-4DD0E490769D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{8F8FC3B3-5038-4C03-8D07-73AD0CB7ED39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F8FC3B3-5038-4C03-8D07-73AD0CB7ED39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F8FC3B3-5038-4C03-8D07-73AD0CB7ED39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F024EE8-C52C-4167-BAE0-4DD0E490769D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F024EE8-C52C-4167-BAE0-4DD0E490769D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F024EE8-C52C-4167-BAE0-4DD0E490769D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F024EE8-C52C-4167-BAE0-4DD0E490769D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
