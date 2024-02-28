@@ -1,7 +1,7 @@
 ﻿
-namespace MaslovaT_task15_practice2024
+namespace MaslovaT_task16_practice2024
 {
-    partial class FishyForm
+    partial class SpiderForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -31,14 +31,14 @@ namespace MaslovaT_task15_practice2024
         {
             this.SuspendLayout();
             // 
-            // FishyForm
+            // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.ClientSize = new System.Drawing.Size(1036, 575);
-            this.Name = "FishyForm";
-            this.Text = "Аквариум";
+            this.ClientSize = new System.Drawing.Size(936, 544);
+            this.ForeColor = System.Drawing.Color.PaleGoldenrod;
+            this.Name = "Form1";
+            this.Text = "Паучки";
             this.ResumeLayout(false);
 
         }
