@@ -77,6 +77,9 @@ namespace MaslovaT_task12_practice2024
 
         #region Form Events
 
+        #region Save State
+
+
         /// <summary>
         /// Load the previous game or do nothing if the file doesn't exist
         /// </summary>
@@ -84,6 +87,7 @@ namespace MaslovaT_task12_practice2024
         {
             if (!File.Exists(initFileLocation)) return false;
 
+            int stringIterator = 0;
             try
             {
                 StreamReader streamReader = new StreamReader(initFileLocation);
@@ -94,14 +98,13 @@ namespace MaslovaT_task12_practice2024
 
                 while ((newlyReadLine = streamReader.ReadLine()) != null)
                 {
-                    int stringIterator = 0;
                     if (newlyReadLine != string.Empty)
                     {
                         for (int j = 0; j < FLD_SZ; j++)
                         {
                             sudoku[stringIterator, j].digit = (byte)(int.Parse(newlyReadLine[j].ToString()));
-                            stringIterator++;
                         }
+                        stringIterator++;
                     }
                 }
                 streamReader.Close();
@@ -113,10 +116,59 @@ namespace MaslovaT_task12_practice2024
                 return false;
             }
 
-            UpdateGameField();
             return true;
 
         }
+
+        /// <summary>
+        /// Save previous data
+        /// </summary>
+        private void SudokuFormMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (sudokuFileLocation != string.Empty)
+            {
+
+                DialogResult result = MessageBox.Show("Хотите сохранить состояние игры?", "ВНИМАНИЕ", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (result == DialogResult.OK)
+                {
+                    SaveState();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Save game state into an init file
+        /// </summary>
+        static void SaveState()
+        {
+            string initFileText = string.Empty;
+
+            initFileText += sudokuFileLocation + Environment.NewLine;
+
+            for (int i = 0; i < FLD_SZ; i++)
+            {
+                for (int j = 0; j < FLD_SZ; j++)
+                {
+                    initFileText += sudoku[i, j].digit;
+                }
+                initFileText += Environment.NewLine;
+            }
+
+            FileInfo initFileInfo = new FileInfo(initFileLocation);
+            try
+            {
+                StreamWriter sw = initFileInfo.CreateText();
+                sw.Write(initFileText);
+                sw.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка записи файла состояния: \n" + ex.ToString(), "ОШИБКА", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+        #endregion
 
         /// <summary>
         /// Load the form
@@ -135,52 +187,7 @@ namespace MaslovaT_task12_practice2024
             OpenSudokuFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
 
             DrawGameField();
-        }
-
-        /// <summary>
-        /// Save previous data
-        /// </summary>
-        private void SudokuFormMain_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (sudokuFileLocation!=string.Empty)
-            {
-
-                DialogResult result = MessageBox.Show("Хотите сохранить состояние игры?", "ВНИМАНИЕ", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-                if (result == DialogResult.OK)
-                {
-                    SaveState();
-                }
-            }
-        }
-        /// <summary>
-        /// Save game state into an init file
-        /// </summary>
-        static void SaveState()
-        {
-            string initFileText = string.Empty;
-
-            initFileText += sudokuFileLocation + Environment.NewLine;
-
-            for (int i = 0; i < FLD_SZ; i++)
-            {
-                for (int j = 0; j < FLD_SZ; j++)
-                {
-                    initFileText += sudoku[i, j];
-                }
-                initFileText += Environment.NewLine;
-            }
-
-            FileInfo initFileInfo = new FileInfo(initFileLocation);
-            try
-            {
-                StreamWriter sw = initFileInfo.CreateText();
-                sw.Write(initFileText);
-                sw.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка записи файла состояния: \n" + ex.ToString(), "ОШИБКА", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            UpdateGameField();
         }
 
         /// <summary>
@@ -207,31 +214,62 @@ namespace MaslovaT_task12_practice2024
         }
 
         /// <summary>
-        /// Input Check
+        /// Reset the game and delete init file
+        /// </summary>
+        private void btReset_Click(object sender, EventArgs e)
+        {
+            DialogResult dialogResult = MessageBox.Show("Точно удалить файл сохранения игры и очистить поле? " +
+                "Это действие нельзя будет отменить.", "ВНИМАНИЕ", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+            if (dialogResult == DialogResult.OK)
+            {
+                File.Delete(initFileLocation);
+                sudokuFileLocation = string.Empty;
+                Application.Restart();
+            }
+        }
+
+
+        #region TBdigit events
+
+        /// <summary>
+        /// Input Check and sudoku update
         /// </summary>
         private void TBdigit_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (char.IsControl(e.KeyChar)) return;
+            TextBox tb = sender as TextBox;
+            char digit = e.KeyChar;
 
-            if ((sender as TextBox).Text.Length > 0)
+            if (char.IsControl(digit)) return;
+
+            if (tb.Text.Length > 0)
             {
                 e.Handled = true;
             }
 
-            if (!char.IsDigit(e.KeyChar) || e.KeyChar=='0')
+            if (!char.IsDigit(digit) || digit == '0')
             {
                 e.Handled = true;
             }
         }
 
         /// <summary>
-        /// Main update
+        /// Update sudoku
         /// </summary>
-        private void TBdigit_TextChanged(object sender, EventArgs e)
+        private void TBdigit_KeyUp(object sender, KeyEventArgs e)
         {
-            UpdateSudoku();
+
+            TextBox tb = sender as TextBox;
+            byte row = (byte)(tb.Name[2] - 0x30);
+            byte col = (byte)(tb.Name[4] - 0x30);
+            char digit = '0';
+            if (tb.Text.Length > 0)
+                digit = tb.Text[0];
+
+            UpdateSudoku(row, col, digit);
             UpdateGameField();
         }
+
+        #endregion
 
         #endregion
 
@@ -264,6 +302,7 @@ namespace MaslovaT_task12_practice2024
                     currTB.Text = sudoku[i, j].ToString();
 
                     currTB.KeyPress += TBdigit_KeyPress;
+                    currTB.KeyUp += TBdigit_KeyUp;
 
                     Controls.Add(textBoxArray[i, j]);
 
@@ -280,15 +319,19 @@ namespace MaslovaT_task12_practice2024
         private void RenderOtherControls()
         {
             btLoadSudoku.Location = new System.Drawing.Point(PADDING_BIG, PADDING_BIG);
-            btLoadSudoku.Size = new System.Drawing.Size((CELL_SZ * FLD_SZ + PADDING_SMALL * 2) / 2 - PADDING_BIG, (int)(CELL_SZ * 1.5));
-            btLoadSudoku.Font = new Font(this.Font.FontFamily, (int)Math.Floor(CELL_SZ /2.5), FontStyle.Regular);
+            btLoadSudoku.Size = new System.Drawing.Size((CELL_SZ * FLD_SZ + PADDING_SMALL * 2) / 3 - PADDING_BIG, (int)(CELL_SZ * 1.5));
+            btLoadSudoku.Font = new Font(this.Font.FontFamily, (int)Math.Floor(CELL_SZ / 2.6), FontStyle.Regular);
 
-            btHelp_FileFormat.Location = new System.Drawing.Point(btLoadSudoku.Right + PADDING_BIG*2, PADDING_BIG);
+            btReset.Location = new System.Drawing.Point(btLoadSudoku.Right + PADDING_BIG + PADDING_SMALL*2, PADDING_BIG);
+            btReset.Size = btLoadSudoku.Size;
+            btReset.Font = btLoadSudoku.Font;
+
+            btHelp_FileFormat.Location = new System.Drawing.Point(btReset.Right + PADDING_BIG + PADDING_SMALL*2, PADDING_BIG);
             btHelp_FileFormat.Size = btLoadSudoku.Size;
             btHelp_FileFormat.Font = btLoadSudoku.Font;
 
             this.Size = new System.Drawing.Size(CELL_SZ * FLD_SZ + PADDING_BIG * 4,
-                30 + PADDING_BIG * 4 + PADDING_SMALL * 3 + CELL_SZ * FLD_SZ + btLoadSudoku.Height);
+                      30 + PADDING_BIG * 4 + PADDING_SMALL * 3 + CELL_SZ * FLD_SZ + btLoadSudoku.Height);
         }
 
         /// <summary>
@@ -410,15 +453,24 @@ namespace MaslovaT_task12_practice2024
         /// <summary>
         /// Put textbox data into sudoku
         /// </summary>
-        static void UpdateSudoku()
+        private void UpdateSudoku(byte row, byte col, char digit)
         {
+            sudoku[row, col].digit = CharToDigit(digit);
+        }
+
+        static string Byte2DarrToString(SudokuElement[,] arr)
+        {
+            string output = string.Empty;
             for (int i = 0; i < FLD_SZ; i++)
             {
                 for (int j = 0; j < FLD_SZ; j++)
                 {
-                    sudoku[i, j].digit = (byte)int.Parse(textBoxArray[i, j].Text);
+                    output += arr[i, j].digit + " ";
                 }
+                if (i < FLD_SZ - 1)
+                    output += Environment.NewLine;
             }
+            return output;
         }
 
         #endregion
