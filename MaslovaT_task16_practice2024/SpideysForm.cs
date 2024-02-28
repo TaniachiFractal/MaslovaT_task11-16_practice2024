@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace MaslovaT_task16_practice2024
 {
-    public partial class Form1 : Form
+    public partial class SpideysForm : Form
     {
-        public Form1()
+        public SpideysForm()
         {
             InitializeComponent();
         }

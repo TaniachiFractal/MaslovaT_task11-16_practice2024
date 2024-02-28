@@ -16,7 +16,7 @@ namespace MaslovaT_task16_practice2024
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new SpideysForm());
         }
     }
 }
