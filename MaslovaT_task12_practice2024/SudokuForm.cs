@@ -79,11 +79,10 @@ namespace MaslovaT_task12_practice2024
 
         #region Save State
 
-
         /// <summary>
         /// Load the previous game or do nothing if the file doesn't exist
         /// </summary>
-        static bool LoadPreviousGame()
+        private bool LoadPreviousGame()
         {
             if (!File.Exists(initFileLocation)) return false;
 
@@ -127,7 +126,6 @@ namespace MaslovaT_task12_practice2024
         {
             if (sudokuFileLocation != string.Empty)
             {
-
                 DialogResult result = MessageBox.Show("Хотите сохранить состояние игры?", "ВНИМАНИЕ", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                 if (result == DialogResult.OK)
                 {
@@ -166,7 +164,6 @@ namespace MaslovaT_task12_practice2024
                 MessageBox.Show("Ошибка записи файла состояния: \n" + ex.ToString(), "ОШИБКА", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
 
         #endregion
 
@@ -216,7 +213,7 @@ namespace MaslovaT_task12_practice2024
         /// <summary>
         /// Reset the game and delete init file
         /// </summary>
-        private void btReset_Click(object sender, EventArgs e)
+        private void BtReset_Click(object sender, EventArgs e)
         {
             DialogResult dialogResult = MessageBox.Show("Точно удалить файл сохранения игры и очистить поле? " +
                 "Это действие нельзя будет отменить.", "ВНИМАНИЕ", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
@@ -227,7 +224,6 @@ namespace MaslovaT_task12_practice2024
                 Application.Restart();
             }
         }
-
 
         #region TBdigit events
 
@@ -257,7 +253,6 @@ namespace MaslovaT_task12_practice2024
         /// </summary>
         private void TBdigit_KeyUp(object sender, KeyEventArgs e)
         {
-
             TextBox tb = sender as TextBox;
             byte row = (byte)(tb.Name[2] - 0x30);
             byte col = (byte)(tb.Name[4] - 0x30);
@@ -322,22 +317,22 @@ namespace MaslovaT_task12_practice2024
             btLoadSudoku.Size = new System.Drawing.Size((CELL_SZ * FLD_SZ + PADDING_SMALL * 2) / 3 - PADDING_BIG, (int)(CELL_SZ * 1.5));
             btLoadSudoku.Font = new Font(this.Font.FontFamily, (int)Math.Floor(CELL_SZ / 2.6), FontStyle.Regular);
 
-            btReset.Location = new System.Drawing.Point(btLoadSudoku.Right + PADDING_BIG + PADDING_SMALL*2, PADDING_BIG);
+            btReset.Location = new System.Drawing.Point(btLoadSudoku.Right + PADDING_BIG + PADDING_SMALL * 2, PADDING_BIG);
             btReset.Size = btLoadSudoku.Size;
             btReset.Font = btLoadSudoku.Font;
 
-            btHelp_FileFormat.Location = new System.Drawing.Point(btReset.Right + PADDING_BIG + PADDING_SMALL*2, PADDING_BIG);
+            btHelp_FileFormat.Location = new System.Drawing.Point(btReset.Right + PADDING_BIG + PADDING_SMALL * 2, PADDING_BIG);
             btHelp_FileFormat.Size = btLoadSudoku.Size;
             btHelp_FileFormat.Font = btLoadSudoku.Font;
 
             this.Size = new System.Drawing.Size(CELL_SZ * FLD_SZ + PADDING_BIG * 4,
-                      30 + PADDING_BIG * 4 + PADDING_SMALL * 3 + CELL_SZ * FLD_SZ + btLoadSudoku.Height);
+                        30 + PADDING_BIG * 4 + PADDING_SMALL * 3 + CELL_SZ * FLD_SZ + btLoadSudoku.Height);
         }
 
         /// <summary>
         /// Read the sudoku array and update the text boxes
         /// </summary>
-        static void UpdateGameField()
+        private void UpdateGameField()
         {
             for (int i = 0; i < FLD_SZ; i++)
             {
@@ -345,20 +340,107 @@ namespace MaslovaT_task12_practice2024
                 {
                     textBoxArray[i, j].Text = sudoku[i, j].ToString();
                     textBoxArray[i, j].ReadOnly = sudoku[i, j].locked;
+                }
+            }
+            CheckWrongInputAndColor();
+            if (ColorGreenCells_AndCheckWin())
+            {
+                MessageBox.Show("Вы победили!", "ПОБЕДА", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                File.Delete(initFileLocation);
+                sudokuFileLocation = string.Empty;
+                Application.Restart();
+            }
+        }
 
-                    if (textBoxArray[i, j].ReadOnly)
-                        textBoxArray[i, j].BackColor = Color.Gainsboro;
+        #region color
+
+        /// <summary>
+        /// Make incorrect numbers red, unsolved - white
+        /// </summary>
+        private void CheckWrongInputAndColor()
+        {
+            for (byte i = 0; i < FLD_SZ; i++)
+            {
+                for (byte j = 0; j < FLD_SZ; j++)
+                {
+                    byte currDigit = sudoku[i, j].digit;
+                    byte startCol = StartOfCell(j);
+                    byte startRow = StartOfCell(i);
+
+                    if (currDigit != 0)
+                    {
+                        // Clean
+                        if (!DigitAlreadyIn_Col(sudoku, i, j, currDigit) ||
+                            !DigitAlreadyIn_Col(sudoku, i, j, currDigit) ||
+                            !DigitAlreadyIn_Col(sudoku, i, j, currDigit))
+                        {
+                            ColorDigit(i, j, Color.Gainsboro, Color.White);
+                        }
+
+                        // Wrong
+                        if (DigitAlreadyIn_Col(sudoku, i, j, currDigit) ||
+                            DigitAlreadyIn_Row(sudoku, i, j, currDigit) ||
+                            DigitAlreadyIn_Cell(sudoku, i, j, currDigit))
+                        {
+                            ColorDigit(i, j, Color.Maroon, Color.OrangeRed);
+                        }
+                    }
+                    else
+                    {
+                        ColorDigit(i, j, Color.Gainsboro, Color.White);
+                    }
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Color all cells green and check win
+        /// </summary>
+        private bool ColorGreenCells_AndCheckWin()
+        {
+            byte greenCells = 0;
+
+            for (byte i = 0; i < FLD_SZ; i+=3)
+            {
+                for (byte j = 0; j < FLD_SZ; j+=3)
+                {
+                    if (CellFullyCorrect(i, j))
+                    {
+                        ColorCell(i, j, Color.OliveDrab, Color.LightGreen);
+                        greenCells++;
+                    }
+                }
+            }
+
+            return greenCells == 9;
+        }
+
+        /// <summary>
+        /// Color a sudoku cell
+        /// </summary>
+        private void ColorCell(byte startRow, byte startCol, Color lockedDigitColor, Color normalDigitColor)
+        {
+            for (byte i = startRow; i < startRow + 3; i++)
+            {
+                for (byte j = startCol; j < startCol + 3; j++)
+                {
+                    if (sudoku[i, j].locked) textBoxArray[i, j].BackColor = lockedDigitColor;
+                    else textBoxArray[i, j].BackColor = normalDigitColor;
                 }
             }
         }
 
         /// <summary>
-        /// Make incorrect numbers red, fully correct - green
+        /// Color a sudoku digit
         /// </summary>
-        private void CheckInputAndColor()
+        private void ColorDigit(byte row, byte col, Color lockedDigitColor, Color normalDigitColor)
         {
-
+            if (sudoku[row, col].locked) textBoxArray[row, col].BackColor = lockedDigitColor;
+            else textBoxArray[row, col].BackColor = normalDigitColor;
         }
+
+        #endregion
 
         #endregion
 
@@ -391,7 +473,7 @@ namespace MaslovaT_task12_practice2024
         /// <summary>
         /// Read sudoku file and put into the data array
         /// </summary>
-        static bool ReadSudoku()
+        private bool ReadSudoku()
         {
             try
             {
@@ -435,6 +517,7 @@ namespace MaslovaT_task12_practice2024
                 MessageBox.Show("Ошибка чтения файла судоку: \n" + ex.Message, "ОШИБКА", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
+
             return true;
 
         }
@@ -478,6 +561,22 @@ namespace MaslovaT_task12_practice2024
         #region sudoku check
 
         /// <summary>
+        /// True if cell is complete and has no repeating numbers
+        /// </summary>
+        private bool CellFullyCorrect(byte startRow, byte startCol)
+        {
+            for (byte i = startRow; i < startRow + 3; i++)
+            {
+                for (byte j = startCol; j < startCol + 3; j++)
+                {
+                    if (sudoku[i, j].digit == 0) return false;
+                    if (DigitIsWrong(sudoku, i, j, sudoku[i, j].digit)) return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Returns the start row/cell of a cell by any digit coords in it: (5,2)->(0,3)  (1,4)->(3,0)
         /// </summary>
         static byte StartOfCell(byte row_cell)
@@ -488,12 +587,15 @@ namespace MaslovaT_task12_practice2024
         /// <summary>
         /// True if the newly generated digit is already in the row
         /// </summary>
-        static bool DigitAlreadyIn_Row(byte[,] sudoku, byte row, byte digit)
+        private bool DigitAlreadyIn_Row(SudokuElement[,] sudoku, byte row, byte col, byte digit)
         {
-            for (byte i = 0; i < 9; i++)
+            for (byte i = 0; i < FLD_SZ; i++)
             {
-                if (sudoku[row, i] == digit)
+                if (i == col) continue;
+                if (sudoku[row, i].digit == digit)
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -501,11 +603,12 @@ namespace MaslovaT_task12_practice2024
         /// <summary>
         /// True if the newly generated digit is already in the col
         /// </summary>
-        static bool DigitAlreadyIn_Col(byte[,] sudoku, byte col, byte digit)
+        static bool DigitAlreadyIn_Col(SudokuElement[,] sudoku, byte row, byte col, byte digit)
         {
             for (byte i = 0; i < 9; i++)
             {
-                if (sudoku[i, col] == digit)
+                if (i == row) continue;
+                if (sudoku[i, col].digit == digit)
                     return true;
             }
             return false;
@@ -514,8 +617,10 @@ namespace MaslovaT_task12_practice2024
         /// <summary>
         /// True if the newly generated digit is already in the cell
         /// </summary>
-        static bool DigitAlreadyIn_Cell(byte[,] sudoku, byte row, byte col, byte digit)
+        static bool DigitAlreadyIn_Cell(SudokuElement[,] sudoku, byte row, byte col, byte digit)
         {
+            if (digit == 0) return false;
+
             byte startCol = StartOfCell(col);
             byte startRow = StartOfCell(row);
 
@@ -523,7 +628,8 @@ namespace MaslovaT_task12_practice2024
             {
                 for (byte j = startCol; j < startCol + 3; j++)
                 {
-                    if (sudoku[i, j] == digit)
+                    if (i == row && j == col) continue;
+                    if (sudoku[i, j].digit == digit)
                         return true;
                 }
             }
@@ -533,11 +639,12 @@ namespace MaslovaT_task12_practice2024
         /// <summary>
         /// True if the newly generated digit is already in the row, col or cell
         /// </summary>
-        static bool DigitIsWrong(byte[,] sudoku, byte row, byte col, byte digit)
+        private bool DigitIsWrong(SudokuElement[,] sudoku, byte row, byte col, byte digit)
         {
-            return DigitAlreadyIn_Cell(sudoku, row, col, digit) || DigitAlreadyIn_Col(sudoku, col, digit) || DigitAlreadyIn_Row(sudoku, row, digit);
+            return DigitAlreadyIn_Cell(sudoku, row, col, digit) || DigitAlreadyIn_Col(sudoku, row, col, digit) || DigitAlreadyIn_Row(sudoku, row, col, digit);
         }
 
         #endregion
+
     }
 }

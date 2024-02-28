@@ -46,7 +46,7 @@ namespace MaslovaT_task12_practice2024
             this.btLoadSudoku.BackColor = System.Drawing.Color.WhiteSmoke;
             this.btLoadSudoku.Location = new System.Drawing.Point(12, 12);
             this.btLoadSudoku.Name = "btLoadSudoku";
-            this.btLoadSudoku.Size = new System.Drawing.Size(215, 47);
+            this.btLoadSudoku.Size = new System.Drawing.Size(103, 47);
             this.btLoadSudoku.TabIndex = 0;
             this.btLoadSudoku.Text = "Загрузить судоку";
             this.btLoadSudoku.UseVisualStyleBackColor = false;
@@ -55,9 +55,9 @@ namespace MaslovaT_task12_practice2024
             // btHelp_FileFormat
             // 
             this.btHelp_FileFormat.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.btHelp_FileFormat.Location = new System.Drawing.Point(233, 12);
+            this.btHelp_FileFormat.Location = new System.Drawing.Point(121, 12);
             this.btHelp_FileFormat.Name = "btHelp_FileFormat";
-            this.btHelp_FileFormat.Size = new System.Drawing.Size(215, 47);
+            this.btHelp_FileFormat.Size = new System.Drawing.Size(96, 47);
             this.btHelp_FileFormat.TabIndex = 1;
             this.btHelp_FileFormat.Text = "Помощь";
             this.btHelp_FileFormat.UseVisualStyleBackColor = false;
@@ -66,21 +66,21 @@ namespace MaslovaT_task12_practice2024
             // btReset
             // 
             this.btReset.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.btReset.Location = new System.Drawing.Point(454, 12);
+            this.btReset.Location = new System.Drawing.Point(223, 12);
             this.btReset.Name = "btReset";
-            this.btReset.Size = new System.Drawing.Size(215, 47);
+            this.btReset.Size = new System.Drawing.Size(86, 47);
             this.btReset.TabIndex = 2;
             this.btReset.Text = "Заново";
             this.btReset.UseVisualStyleBackColor = false;
-            this.btReset.Click += new System.EventHandler(this.btReset_Click);
+            this.btReset.Click += new System.EventHandler(this.BtReset_Click);
             // 
             // SudokuFormMain
             // 
-            this.AcceptButton = this.btLoadSudoku;
+            this.AcceptButton = this.btHelp_FileFormat;
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
-            this.ClientSize = new System.Drawing.Size(1061, 560);
+            this.ClientSize = new System.Drawing.Size(1075, 535);
             this.Controls.Add(this.btReset);
             this.Controls.Add(this.btHelp_FileFormat);
             this.Controls.Add(this.btLoadSudoku);
