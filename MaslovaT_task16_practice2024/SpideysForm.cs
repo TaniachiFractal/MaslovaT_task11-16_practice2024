@@ -7,10 +7,10 @@ namespace MaslovaT_task16_practice2024
 {
     public partial class SpideysForm : Form
     {
-        public SpideysForm()
-        {
-            InitializeComponent();
-        }
+        /// <summary>
+        /// The amount of spiders
+        /// </summary>
+        const int SpiderCount = 15;
 
         #region data
 
@@ -31,14 +31,9 @@ namespace MaslovaT_task16_practice2024
         static int oldScreenHeight, oldScreenWidth;
 
         /// <summary>
-        /// The amount of spiders
-        /// </summary>
-        static int SpiderCount;
-
-        /// <summary>
         /// The distance between 2 spiders at which the web starts drawing
         /// </summary>
-        static int maxSpiderwebLength;
+        public static int maxSpiderwebLength;
 
         /// <summary>
         /// Main randomizer
@@ -72,6 +67,11 @@ namespace MaslovaT_task16_practice2024
         #endregion
 
         #region Form events
+
+        public SpideysForm()
+        {
+            InitializeComponent();
+        }
 
         /// <summary>
         /// Load the form
@@ -129,6 +129,15 @@ namespace MaslovaT_task16_practice2024
             RenderSpiders();
         }
 
+        /// <summary>
+        /// Change the max web length
+        /// </summary>
+        private void BtSettings_Click(object sender, EventArgs e)
+        {
+            UserSettingsForm userSettingsForm = new UserSettingsForm();
+            userSettingsForm.Show();
+        }
+
         #endregion
 
         #region Working with data
@@ -140,7 +149,7 @@ namespace MaslovaT_task16_practice2024
         {
             CorrectSize();
             UpdateOldScreenDimens();
-            SpiderCount = 15;
+            maxSpiderwebLength = this.Width / 3;
         }
 
         /// <summary>
@@ -161,7 +170,6 @@ namespace MaslovaT_task16_practice2024
                 this.Width += spiderWidth - this.Width % spiderWidth;
             if (this.Height % spiderHeight > 0)
                 this.Height += spiderHeight - this.Height % spiderHeight;
-            maxSpiderwebLength = this.Width / 5;
         }
 
         /// <summary>
@@ -211,6 +219,7 @@ namespace MaslovaT_task16_practice2024
 
                 this.Controls.Add(currPB);
             }
+            btSettings.Left = -100;
         }
 
         /// <summary>
