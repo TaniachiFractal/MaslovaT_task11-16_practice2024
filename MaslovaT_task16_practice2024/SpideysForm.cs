@@ -10,7 +10,7 @@ namespace MaslovaT_task16_practice2024
         /// <summary>
         /// The amount of spiders
         /// </summary>
-        const int SpiderCount = 15;
+        const int SpiderCount = 5;
 
         #region data
 

@@ -70,10 +70,24 @@ namespace MaslovaT_task16_practice2024
             X = (int)(percentX * newFldWid);
             Y = (int)(percentY * newFldHei);
 
-            if (X > newFldWid) { X = newFldWid - Width; }
-            if (Y > newFldHei) { Y = newFldHei - Height; }
-            if (X < 0) { X = 0; }
-            if (Y < 0) { Y = 0; }
+            if (X > newFldWid)
+            {
+                X = newFldWid - Width;
+                if (SpeedX < 0) { SpeedX *= -1; }
+            }
+            if (Y > newFldHei)
+            {
+                Y = newFldHei - Height;
+                if (SpeedY < 0) { SpeedY *= -1; }
+            }
+            if (X < 0)
+            {
+                X = 0;
+            }
+            if (Y < 0)
+            {
+                Y = 0;
+            }
         }
 
         /// <summary>
