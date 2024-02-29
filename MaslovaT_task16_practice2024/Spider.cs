@@ -40,26 +40,39 @@ namespace MaslovaT_task16_practice2024
         {
             X += SpeedX;
             Y += SpeedY;
-            if ((X) > fieldWidth)
+            if ((X + Width + 2) > fieldWidth)
             {
-                X = fieldWidth + rnd.Next(fieldWidth / 30);
                 SpeedX = -SpeedX;
             }
-            else if ((Y) > fieldHeight)
+            else if ((Y + Height + 30) > fieldHeight)
             {
-                Y = fieldHeight + rnd.Next(fieldHeight / 30);
                 SpeedY *= -1;
             }
-            else if ((X + Width) < 0)
+            else if ((X - 2) < -4)
             {
-                X = 0 - Width - rnd.Next(fieldWidth / 30);
                 SpeedX *= -1;
             }
-            else if ((Y + Height) < 0)
+            else if ((Y - 2) < -2)
             {
-                Y = 0 - Height - rnd.Next(fieldHeight / 30);
                 SpeedY *= -1;
             }
+        }
+
+        /// <summary>
+        /// Adjust position upon window resize
+        /// </summary>
+        public void AdjustLocation(int oldFldHei, int oldFldWid, int newFldHei, int newFldWid)
+        {
+            double percentX = (double)X / oldFldWid;
+            double percentY = (double)Y / oldFldHei;
+
+            X = (int)(percentX * newFldWid);
+            Y = (int)(percentY * newFldHei);
+
+            if (X > newFldWid) { X = newFldWid - Width; }
+            if (Y > newFldHei) { Y = newFldHei - Height; }
+            if (X < 0) { X = 0; }
+            if (Y < 0) { Y = 0; }
         }
 
         /// <summary>

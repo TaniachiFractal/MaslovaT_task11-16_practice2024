@@ -26,6 +26,11 @@ namespace MaslovaT_task16_practice2024
         #region vars
 
         /// <summary>
+        /// Save window sizes
+        /// </summary>
+        static int oldScreenHeight, oldScreenWidth;
+
+        /// <summary>
         /// The amount of spiders
         /// </summary>
         static int SpiderCount;
@@ -72,10 +77,12 @@ namespace MaslovaT_task16_practice2024
 
         #region Form events
 
+        /// <summary>
+        /// Load the form
+        /// </summary>
         private void SpideysForm_Load(object sender, EventArgs e)
         {
-            // SpiderCount = Screen.PrimaryScreen.Bounds.Height / 40;
-            SpiderCount = 2;
+            InitVars();
 
             InitPictureBoxArray();
             GenerateSpiderData(this.Width, this.Height);
@@ -86,17 +93,20 @@ namespace MaslovaT_task16_practice2024
         }
 
         /// <summary>
-        /// Reset spiders speed
+        /// Reset spiders speed, location and correct the field size
         /// </summary>
         private void SpideysForm_ResizeEnd(object sender, EventArgs e)
         {
+            CorrectSize();
             Random rnd = new Random();
             int Xmax = this.Width, Ymax = this.Height;
             for (int i = 0; i < SpiderCount; i++)
             {
                 int newSpeedX = rnd.Next(Xmax / 400, Xmax / 200) + 1, newSpeedY = rnd.Next(Ymax / 400, Ymax / 200) + 1;
                 spiders[i].ChangeSpeed(OneOrMinusone() * newSpeedX, OneOrMinusone() * newSpeedY);
+                spiders[i].AdjustLocation(oldScreenHeight, oldScreenWidth, this.Height, this.Width);
             }
+            UpdateOldScreenDimens();
         }
 
         /// <summary>
@@ -113,7 +123,39 @@ namespace MaslovaT_task16_practice2024
 
         #endregion
 
-        #region working with data
+        #region Working with data
+
+        /// <summary>
+        /// Initialize vars
+        /// </summary>
+        private void InitVars()
+        {
+            CorrectSize();
+            UpdateOldScreenDimens();
+            // SpiderCount = Screen.PrimaryScreen.Bounds.Height / 40;
+            SpiderCount = 3;
+        }
+
+        /// <summary>
+        /// Update old screen dimens
+        /// </summary>
+        private void UpdateOldScreenDimens()
+        {
+            oldScreenHeight = this.Height;
+            oldScreenWidth = this.Width;
+        }
+
+        /// <summary>
+        /// Make the size divisable by spider dimens
+        /// </summary>
+        private void CorrectSize()
+        {
+            if (this.Width % spiderWidth > 0)
+                this.Width += spiderWidth - this.Width % spiderWidth;
+            if (this.Height % spiderHeight > 0)
+                this.Height += spiderHeight - this.Height % spiderHeight;
+            maxSpiderwebLength = this.Width / 4;
+        }
 
         /// <summary>
         /// Initialize spider array
@@ -158,7 +200,7 @@ namespace MaslovaT_task16_practice2024
                 currPB.Image = Properties.Resources.spider;
                 currPB.SizeMode = PictureBoxSizeMode.StretchImage;
                 currPB.Size = new Size(spiderWidth, spiderHeight);
-                currPB.Location = new Point(i * spiderWidth, i * spiderHeight);               
+                currPB.Location = new Point(i * spiderWidth, i * spiderHeight);
 
                 this.Controls.Add(currPB);
             }
@@ -185,6 +227,14 @@ namespace MaslovaT_task16_practice2024
             spiderwebPN = new Pen(Color.Lavender, 2);
             eraserBR = new SolidBrush(this.BackColor);
             FLDgr.Clear(SystemColors.Control);
+        }
+
+        /// <summary>
+        /// Render the webs between spiders
+        /// </summary>
+        private void DrawWebs()
+        {
+
         }
 
         #endregion
