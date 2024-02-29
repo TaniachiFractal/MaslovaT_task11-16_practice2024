@@ -53,10 +53,6 @@ namespace MaslovaT_task16_practice2024
         /// Data of a spiderwebPN stroke
         /// </summary>
         Pen spiderwebPN;
-        /// <summary>
-        /// How to erase the field
-        /// </summary>
-        Brush eraserBR;
 
         #endregion
 
@@ -93,6 +89,14 @@ namespace MaslovaT_task16_practice2024
         }
 
         /// <summary>
+        /// Stop Animation
+        /// </summary>
+        private void SpideysForm_ResizeBegin(object sender, EventArgs e)
+        {
+            mainTimer.Enabled = false;
+        }
+
+        /// <summary>
         /// Reset spiders speed, location and correct the field size
         /// </summary>
         private void SpideysForm_ResizeEnd(object sender, EventArgs e)
@@ -107,6 +111,9 @@ namespace MaslovaT_task16_practice2024
                 spiders[i].AdjustLocation(oldScreenHeight, oldScreenWidth, this.Height, this.Width);
             }
             UpdateOldScreenDimens();
+            FLDgr = this.CreateGraphics();
+
+            mainTimer.Enabled = true;
         }
 
         /// <summary>
@@ -116,8 +123,9 @@ namespace MaslovaT_task16_practice2024
         {
             for (int i = 0; i < SpiderCount; i++)
             {
-                spiders[i].Move(this.Height, this.Width, rnd);
+                spiders[i].Move(this.Height, this.Width);
             }
+            DrawWebs();
             RenderSpiders();
         }
 
@@ -132,8 +140,7 @@ namespace MaslovaT_task16_practice2024
         {
             CorrectSize();
             UpdateOldScreenDimens();
-            // SpiderCount = Screen.PrimaryScreen.Bounds.Height / 40;
-            SpiderCount = 3;
+            SpiderCount = 15;
         }
 
         /// <summary>
@@ -154,7 +161,7 @@ namespace MaslovaT_task16_practice2024
                 this.Width += spiderWidth - this.Width % spiderWidth;
             if (this.Height % spiderHeight > 0)
                 this.Height += spiderHeight - this.Height % spiderHeight;
-            maxSpiderwebLength = this.Width / 4;
+            maxSpiderwebLength = this.Width / 5;
         }
 
         /// <summary>
@@ -166,7 +173,7 @@ namespace MaslovaT_task16_practice2024
             for (int i = 0; i < SpiderCount; i++)
             {
                 int newSpeedX = rnd.Next(Xmax / 400, Xmax / 200) + 1, newSpeedY = rnd.Next(Ymax / 400, Ymax / 200) + 1;
-                spiders.Add(new Spider(rnd.Next(Xmax), rnd.Next(Ymax),
+                spiders.Add(new Spider(rnd.Next(spiderWidth, Xmax - spiderWidth * 2), rnd.Next(spiderHeight, Ymax - spiderHeight * 2),
                                        OneOrMinusone() * newSpeedX, OneOrMinusone() * newSpeedY,
                                        spiderHeight, spiderWidth));
             }
@@ -224,9 +231,8 @@ namespace MaslovaT_task16_practice2024
         private void InitGraphics()
         {
             FLDgr = this.CreateGraphics();
-            spiderwebPN = new Pen(Color.Lavender, 2);
-            eraserBR = new SolidBrush(this.BackColor);
-            FLDgr.Clear(SystemColors.Control);
+            spiderwebPN = new Pen(Color.Lavender, 1);
+            FLDgr.Clear(this.BackColor);
         }
 
         /// <summary>
@@ -234,7 +240,28 @@ namespace MaslovaT_task16_practice2024
         /// </summary>
         private void DrawWebs()
         {
+            FLDgr.Clear(this.BackColor);
 
+            for (int i = 0; i < SpiderCount; i++)
+            {
+                for (int j = 0; j < SpiderCount; j++)
+                {
+                    if (i == j) continue;
+                    int currDistance = (int)(spiders[i].DistanceToFriend(spiders[j]));
+                    if (currDistance < maxSpiderwebLength)
+                    {
+                        DrawWebLine(spiders[i].GetMiddle(), spiders[j].GetMiddle());
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw 1 string of web
+        /// </summary>
+        private void DrawWebLine(Point start, Point end)
+        {
+            FLDgr.DrawLine(spiderwebPN, start, end);
         }
 
         #endregion

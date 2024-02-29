@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 
 namespace MaslovaT_task16_practice2024
 {
@@ -8,7 +9,7 @@ namespace MaslovaT_task16_practice2024
     internal class Spider
     {
         /// <summary>
-        /// Location of the spider
+        /// Location of a spider
         /// </summary>
         int X, Y;
         /// <summary>
@@ -36,7 +37,7 @@ namespace MaslovaT_task16_practice2024
         /// <summary>
         /// Bounce the spider in ping-pong fashion
         /// </summary>
-        public void Move(int fieldHeight, int fieldWidth, Random rnd)
+        public void Move(int fieldHeight, int fieldWidth)
         {
             X += SpeedX;
             Y += SpeedY;
@@ -76,12 +77,48 @@ namespace MaslovaT_task16_practice2024
         }
 
         /// <summary>
+        /// True if spider flies away
+        /// </summary>
+        public bool Lost(int screenHeight, int screenWidth)
+        {
+            if (X > screenWidth + Width) return true;
+            if (Y > screenHeight + Width) return true;
+            if (X < 0 - Width) return true;
+            if (Y < 0 - Width) return true;
+            return false;
+        }
+
+        /// <summary>
         /// Make spiders go faster/slower upon window resize
         /// </summary>
         public void ChangeSpeed(int speedX, int speedY)
         {
             SpeedX = speedX;
             SpeedY = speedY;
+        }
+
+        /// <summary>
+        /// Get distance to another spider
+        /// </summary>
+        public double DistanceToFriend(Spider friend)
+        {
+            int myMiddle_X = X + Width / 2;
+            int myMiddle_Y = Y + Height / 2;
+            int friendMiddle_X = friend.X + friend.Width / 2;
+            int friendMiddle_Y = friend.Y + friend.Height / 2;
+            return Math.Sqrt(
+
+                   Math.Pow(
+                       myMiddle_X - friendMiddle_X
+                       , 2)
+
+                   +
+
+                   Math.Pow(
+                       myMiddle_Y - friendMiddle_Y
+                       , 2)
+
+                   );
         }
 
         /// <summary>
@@ -92,5 +129,9 @@ namespace MaslovaT_task16_practice2024
         /// Get Y location of the spider
         /// </summary>
         public int GetY() { return Y; }
+        /// <summary>
+        /// Return location as a point
+        /// </summary>
+        public Point GetMiddle() { return new Point(X + Width / 2, Y + Height / 2); }
     }
 }

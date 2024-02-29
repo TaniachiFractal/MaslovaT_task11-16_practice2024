@@ -35,7 +35,7 @@
             // 
             // mainTimer
             // 
-            this.mainTimer.Interval = 5;
+            this.mainTimer.Interval = 30;
             this.mainTimer.Tick += new System.EventHandler(this.MainTimer_Tick);
             // 
             // SpideysForm
@@ -52,6 +52,7 @@
             this.Name = "SpideysForm";
             this.Text = "Паучки";
             this.Load += new System.EventHandler(this.SpideysForm_Load);
+            this.ResizeBegin += new System.EventHandler(this.SpideysForm_ResizeBegin);
             this.ResizeEnd += new System.EventHandler(this.SpideysForm_ResizeEnd);
             this.ResumeLayout(false);
 
