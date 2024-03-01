@@ -6,8 +6,30 @@ namespace MaslovaT_task11_practice2024
     {
         static void Main()
         {
-            Sudoku sudoku = new();      
+            Sudoku sudoku = new();
+
+        Redo:
+            Console.WriteLine("Введите сложность от 0,1 до 0,9:");
+            double difficulty = 0;
+            try
+            {
+                difficulty = double.Parse(Console.ReadLine());
+            }
+            catch 
+            {
+                Console.WriteLine("Ошибка ввода");
+                goto Redo;
+            }
+
+            Console.WriteLine("\nСохраните это в .txt файл и откройте \"Судокером\"");
+            Console.WriteLine(sudoku.ToStringSudoker(difficulty));
+
+
+
+            Console.WriteLine("Показать решение? Нажмите любую клавишу");
+            Console.ReadKey();
             Console.WriteLine(sudoku.ToString());
+
             Console.ReadKey();
         }
     }
@@ -34,7 +56,7 @@ namespace MaslovaT_task11_practice2024
             FillSudoku(0, 3);
         }
 
-        /// <returns>Nicely formatted sudoku</returns>
+        /// <returns>Nicely formatted sudoku </returns>
         public override string ToString()
         {
             string output = String.Empty;
@@ -68,6 +90,33 @@ namespace MaslovaT_task11_practice2024
                 if (i % 3 == 2)
                 {
                     output += GetHorizontalDivider();
+                }
+            }
+            return output;
+        }
+
+
+        /// <param name="difficulty">0-fully solved, 1-empty; <0.1 - easiest, >0.9 - hordest</param>
+        /// <returns></returns>
+        public string ToStringSudoker(double difficulty)
+        {
+            Random rnd = new();
+            string output = String.Empty;
+            output += Environment.NewLine;
+            for (byte i = 0; i < 9; i++)
+            {
+                for (byte j = 0; j < 9; j++)
+                {
+                    if (rnd.NextDouble() > difficulty)
+                        output += (sudoku[i, j].ToString());
+                    else
+                        output += "-";
+                    if (j % 3 == 2) output += " ";
+                }
+                output += Environment.NewLine;
+                if (i % 3 == 2)
+                {
+                    output += "/" + Environment.NewLine;
                 }
             }
             return output;
