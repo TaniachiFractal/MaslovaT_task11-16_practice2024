@@ -29,8 +29,14 @@ namespace MaslovaT_task15_practice2024
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AquariumForm));
+            mainTimer = new System.Windows.Forms.Timer(components);
             SuspendLayout();
+            // 
+            // mainTimer
+            // 
+            mainTimer.Tick += MainTimer_Tick;
             // 
             // AquariumForm
             // 
@@ -48,6 +54,8 @@ namespace MaslovaT_task15_practice2024
         }
 
         #endregion
+
+        private System.Windows.Forms.Timer mainTimer;
     }
 }
 
