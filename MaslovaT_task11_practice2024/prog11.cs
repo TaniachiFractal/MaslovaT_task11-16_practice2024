@@ -14,7 +14,7 @@ namespace MaslovaT_task11_practice2024
             FillSudoku(sudoku);
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            OutputSudoku(sudoku);
+            Console.WriteLine(GetFormattedSudoku(sudoku));
 
             Console.ReadKey();
         }
@@ -49,97 +49,51 @@ namespace MaslovaT_task11_practice2024
         }
 
         /// <summary>
-        /// Fill cell with 0
+        /// Get formatted sudoku string
         /// </summary>
-        static void EraseCell(byte[,] sudoku, byte startRow, byte startCol)
+        static string GetFormattedSudoku(byte[,] sudoku)
         {
-            for (byte i = startRow; i < startRow + 3; i++)
-            {
-                for (byte j = startCol; j < startCol + 3; j++)
-                {
-                    sudoku[i, j] = 0;
-                }
-            }
-        }
+            string output = String.Empty;
 
-        /// <summary>
-        /// Generate a string of non-repeating digits
-        /// </summary>
-        static byte[] RandomDigitString()
-        {
-            byte[] output = new byte[9];
-            for (byte i = 0; i < 9; i++)
+            string GetHorizontalDivider()
             {
-            ReGenDigit:
-                byte tmpDigit = GenerateDigit();
-                for (byte j = 0; j < i; j++)
-                {
-                    if (output[j] == tmpDigit)
-                        goto ReGenDigit;
-                }
-                output[i] = tmpDigit;
-                Console.Write(tmpDigit);
-            }
-            return output;
-        }
-
-        /// <summary>
-        /// Write sudoku byteo the console
-        /// </summary>
-        static void OutputSudoku(byte[,] sudoku)
-        {
-            void WriteHorizontalDivider()
-            {
-                Console.Write(" ┼");
+                string outDiv = string.Empty;
+                outDiv += (" ┼");
                 for (byte j = 0; j < 18; j++)
                 {
-                    Console.Write('─');
+                    outDiv += ('─');
                     if (j % 6 == 5)
-                        Console.Write('┼');
+                        outDiv += ('┼');
                 }
-                Console.WriteLine();
+                outDiv += Environment.NewLine;
+                return outDiv;
             }
 
-            Console.WriteLine();
-            WriteHorizontalDivider();
+            output += Environment.NewLine;
+            output += GetHorizontalDivider();
             for (byte i = 0; i < 9; i++)
             {
-                Console.Write(" │");
+                output += (" │");
                 for (byte j = 0; j < 9; j++)
                 {
-                    Console.Write(sudoku[i, j].ToString() + ' ');
+                    output += (sudoku[i, j].ToString() + ' ');
                     if (j % 3 == 2)
-                        Console.Write('│');
+                        output += ('│');
                 }
-                Console.WriteLine();
+                output += Environment.NewLine;
                 if (i % 3 == 2)
                 {
-                    WriteHorizontalDivider();
+                    output += GetHorizontalDivider();
                 }
             }
-        }
-
-        /// <summary>
-        /// Generate random empty cell
-        /// </summary>
-        static BytePoint GenerateCoord(byte[,] sudoku)
-        {
-            Random rnd = new Random();
-        ReGenPoint:
-            byte row = (byte)rnd.Next(0, 9);
-            byte col = (byte)rnd.Next(0, 9);
-            if (sudoku[row, col] != 0)
-            {
-                goto ReGenPoint;
-            }
-            return new BytePoint(row, col);
+            return output;
         }
 
         static void SetRandomConsoleColor()
         {
             Random rnd = new();
             int possibleColor = rnd.Next(1, 14);
-            if (possibleColor == 11 || Console.ForegroundColor == (ConsoleColor)possibleColor)
+            if (possibleColor == (int)ConsoleColor.Cyan || Console.ForegroundColor == (ConsoleColor)possibleColor)
             {
                 possibleColor++;
             }
@@ -211,6 +165,14 @@ namespace MaslovaT_task11_practice2024
             return DigitAlreadyIn_Cell(sudoku, row, col, digit) || DigitAlreadyIn_Col(sudoku, col, digit) || DigitAlreadyIn_Row(sudoku, row, digit);
         }
 
+        /// <summary>
+        /// True if coord is in cell
+        /// </summary>
+        static bool InCell(byte[,] sudoku, byte startRow, byte startCol, byte row, byte col)
+        {
+            return startCol == StartOfCell(col) && startRow == StartOfCell(row);
+        }
+
         #endregion
 
         /// <summary>
@@ -222,56 +184,38 @@ namespace MaslovaT_task11_practice2024
             FillCell(sudoku, 0, 0);
             FillCell(sudoku, 3, 3);
             FillCell(sudoku, 6, 6);
-        #endregion
-
-        RestartFill:
-            #region empty other cells
-            EraseCell(sudoku, 0, 3);
-            EraseCell(sudoku, 0, 6);
-            EraseCell(sudoku, 3, 6);
-
-            EraseCell(sudoku, 3, 0);
-            EraseCell(sudoku, 6, 0);
-            EraseCell(sudoku, 6, 3);
             #endregion
 
-            for (byte i = 0; i < 9; i++)
+            byte i = 0, j = 0;
+            while (i < 9)
             {
-                for (byte j = 0; j < 9; j++)
+                while (j < 9)
                 {
-                    BytePoint newCoord = GenerateCoord(sudoku);
-                    byte[] possibleDigits = RandomDigitString();
-
-                    int iter;
-                    for (iter = 0; iter < 9; iter++)
+                    if (InCell(sudoku, 0, 0, i, j) || InCell(sudoku, 3, 3, i, j) || InCell(sudoku, 6, 6, i, j))
                     {
-                        if (!DigitIsWrong(sudoku, newCoord.col, newCoord.row, possibleDigits[iter]))
+                        Console.WriteLine(9);
+                        j++;
+                        continue;
+                    }
+                    for (byte newDigit = 1; newDigit < 9; newDigit++)
+                    {
+                        if (!DigitIsWrong(sudoku, i, j, newDigit))
                         {
-                            sudoku[newCoord.col, newCoord.row] = possibleDigits[iter];
+                            sudoku[i, j] = newDigit;
                             break;
                         }
+                        if (newDigit == 9)
+                        {
+                            SetRandomConsoleColor();
+                            i = 0; j = 3; 
+                        }
                     }
-                    OutputSudoku(sudoku);
-                    if (iter == 8)
-                    {
-                        SetRandomConsoleColor();
-                        goto RestartFill;
-                    }
-                    iter = 0;
+                    Console.WriteLine(GetFormattedSudoku(sudoku));
+                    j++;
                 }
-            }
-            for (byte i = 0; i < 9; i++)
-            {
-                for (byte j = 0; j < 9; j++)
-                {
-                    if (sudoku[i, j] == 0)
-                        goto RestartFill;
-                }
+                i++;
             }
         }
-
-
-
 
     }
 }
