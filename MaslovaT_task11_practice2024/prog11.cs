@@ -66,6 +66,74 @@ namespace MaslovaT_task11_practice2024
             FillSudokuDigit(0, 3);
         }
 
+        #region Generator helpers
+
+        /// <summary>
+        /// Fill one digit correctly, call itself once again;
+        /// <para>Finished - return true, failed - return false</para>
+        /// </summary>
+        bool FillSudokuDigit(int row, int col)
+        {
+            if (col == 9)
+            {
+                if (++row == 9)
+                    return true; // Finished
+                col = 0; // Next line
+            }
+
+            if (sudoku[row, col] != 0) // If digit is not empty, go to the next one
+            {
+                return FillSudokuDigit(row, col + 1);
+            }
+
+            for (byte newDigit = 1; newDigit < 10; newDigit++)
+            {
+                if (!DigitIsWrong((byte)row, (byte)col, newDigit))
+                {
+                    sudoku[row, col] = newDigit; // Write new digit
+
+                    if (FillSudokuDigit(row, col + 1)) // Check finish conditions
+                        return true; //Finished
+
+                    sudoku[row, col] = 0; // If finish conditions are not met, erase cell
+                }
+
+            }
+
+            return false;
+
+        }
+
+        /// <summary>
+        /// Randomly fill 1 cell
+        /// </summary>
+        void FillCell(byte startRow, byte startCol)
+        {
+            for (byte i = startRow; i < startRow + 3; i++)
+            {
+                for (byte j = startCol; j < startCol + 3; j++)
+                {
+                ReGen:
+                    byte tmpDigit = GenerateDigit();
+                    if (DigitAlreadyIn_Cell(i, j, tmpDigit)) goto ReGen;
+                    sudoku[i, j] = tmpDigit;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Randomly returns any digit 0 - 8
+        /// </summary>
+        byte GenerateDigit()
+        {
+            Random rnd = new ();
+            return (byte)rnd.Next(1, 10);
+        }
+
+        #endregion
+
+        #region To String
+
         /// <returns>Nicely formatted sudoku </returns>
         public override string ToString()
         {
@@ -131,69 +199,7 @@ namespace MaslovaT_task11_practice2024
             return output;
         }
 
-
-
-        /// <summary>
-        /// Fill one digit correctly, call itself once again;
-        /// <para>Finished - return true, failed - return false</para>
-        /// </summary>
-        bool FillSudokuDigit(int row, int col)
-        {
-            if (col == 9)
-            {
-                if (++row == 9)
-                    return true; // Finished
-                col = 0; // Next line
-            }
-
-            if (sudoku[row, col] != 0) // If digit is not empty, go to the next one
-            {
-                return FillSudokuDigit(row, col + 1);
-            }
-
-            for (byte newDigit = 1; newDigit < 10; newDigit++)
-            {
-                if (!DigitIsWrong((byte)row, (byte)col, newDigit))
-                {
-                    sudoku[row, col] = newDigit; // Write new digit
-
-                    if (FillSudokuDigit(row, col + 1)) // Check finish conditions
-                        return true; //Finished
-
-                    sudoku[row, col] = 0; // If finish conditions are not met, erase cell
-                }
-
-            }
-
-            return false;
-
-        }
-
-        /// <summary>
-        /// Randomly fill 1 cell
-        /// </summary>
-        void FillCell(byte startRow, byte startCol)
-        {
-            for (byte i = startRow; i < startRow + 3; i++)
-            {
-                for (byte j = startCol; j < startCol + 3; j++)
-                {
-                ReGen:
-                    byte tmpDigit = GenerateDigit();
-                    if (DigitAlreadyIn_Cell(i, j, tmpDigit)) goto ReGen;
-                    sudoku[i, j] = tmpDigit;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Randomly returns any digit 0 - 8
-        /// </summary>
-        byte GenerateDigit()
-        {
-            Random rnd = new Random();
-            return (byte)rnd.Next(1, 10);
-        }
+        #endregion
 
         #region Check
 
