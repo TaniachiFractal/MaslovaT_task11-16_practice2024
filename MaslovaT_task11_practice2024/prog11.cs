@@ -11,12 +11,13 @@ namespace MaslovaT_task11_practice2024
             #region input
         Retype:
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Введите сложность от 0,1 до 0,9: \n >_ ");
-            double difficulty = 0;
+            Console.Write("Введите сложность от 0 до 10: \n >_ ");
+            int difficulty = 0;
             try
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                difficulty = double.Parse(Console.ReadLine());
+                difficulty = int.Parse(Console.ReadLine());
+                if (difficulty < 0 || difficulty > 10) { throw new Exception(); }
             }
             catch
             {
@@ -29,11 +30,11 @@ namespace MaslovaT_task11_practice2024
             Console.WriteLine("\nСохраните это в .txt файл и откройте \"Судокером\" (задание 12)");
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(sudoku.ToStringSudoker(difficulty));
+            Console.WriteLine(sudoku.ToStringSudoker((double)difficulty/10));
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Показать решение? Нажмите любую клавишу");
-            Console.ReadKey();
+            Console.ReadKey(true);
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             #endregion
