@@ -105,7 +105,6 @@ namespace MaslovaT_task11_practice2024
             return output;
         }
 
-
         /// <param name="difficulty">0-fully solved, 1-empty; 0.1 - easiest, 0.9 - hardest</param>
         /// <returns>Sudoker compatible sudoku</returns>
         public string ToStringSudoker(double difficulty)
