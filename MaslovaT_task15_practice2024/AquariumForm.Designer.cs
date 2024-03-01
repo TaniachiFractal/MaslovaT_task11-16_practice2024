@@ -1,7 +1,7 @@
 ﻿
 namespace MaslovaT_task15_practice2024
 {
-    partial class FishyForm
+    partial class AquariumForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -29,18 +29,21 @@ namespace MaslovaT_task15_practice2024
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AquariumForm));
             SuspendLayout();
             // 
-            // FishyForm
+            // AquariumForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            BackColor = System.Drawing.SystemColors.ActiveCaption;
-            ClientSize = new System.Drawing.Size(706, 509);
+            BackColor = System.Drawing.Color.SteelBlue;
+            ClientSize = new System.Drawing.Size(776, 520);
             Font = new System.Drawing.Font("Bahnschrift SemiCondensed", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            Name = "FishyForm";
+            Name = "AquariumForm";
             Text = "Аквариум";
+            Load += AquariumForm_Load;
             ResumeLayout(false);
         }
 

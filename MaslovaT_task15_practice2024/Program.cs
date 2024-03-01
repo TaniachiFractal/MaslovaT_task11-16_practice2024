@@ -17,7 +17,7 @@ namespace MaslovaT_task15_practice2024
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FishyForm());
+            Application.Run(new AquariumForm());
         }
     }
 }
