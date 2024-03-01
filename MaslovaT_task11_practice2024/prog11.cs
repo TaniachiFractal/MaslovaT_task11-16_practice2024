@@ -63,7 +63,7 @@ namespace MaslovaT_task11_practice2024
             FillCell(3, 3);
             FillCell(6, 6);
 
-            FillSudoku(0, 3);
+            FillSudokuDigit(0, 3);
         }
 
         /// <returns>Nicely formatted sudoku </returns>
@@ -131,11 +131,13 @@ namespace MaslovaT_task11_practice2024
             return output;
         }
 
+
+
         /// <summary>
         /// Fill one digit correctly, call itself once again;
         /// <para>Finished - return true, failed - return false</para>
         /// </summary>
-        bool FillSudoku(int row, int col)
+        bool FillSudokuDigit(int row, int col)
         {
             if (col == 9)
             {
@@ -146,7 +148,7 @@ namespace MaslovaT_task11_practice2024
 
             if (sudoku[row, col] != 0) // If digit is not empty, go to the next one
             {
-                return FillSudoku(row, col + 1);
+                return FillSudokuDigit(row, col + 1);
             }
 
             for (byte newDigit = 1; newDigit < 10; newDigit++)
@@ -155,7 +157,7 @@ namespace MaslovaT_task11_practice2024
                 {
                     sudoku[row, col] = newDigit; // Write new digit
 
-                    if (FillSudoku(row, col + 1)) // Check finish conditions
+                    if (FillSudokuDigit(row, col + 1)) // Check finish conditions
                         return true; //Finished
 
                     sudoku[row, col] = 0; // If finish conditions are not met, erase cell
