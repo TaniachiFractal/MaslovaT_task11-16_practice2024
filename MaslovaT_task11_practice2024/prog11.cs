@@ -4,54 +4,37 @@ namespace MaslovaT_task11_practice2024
 {
     internal class Program
     {
-        /// <summary>
-        /// Main array
-        /// </summary>
-        static byte[,] sudoku = new byte[9, 9];
-
         static void Main()
         {
-            FillSudoku(sudoku);
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(GetFormattedSudoku(sudoku));
-
+            Sudoku sudoku = new();      
+            Console.WriteLine(sudoku.ToString());
             Console.ReadKey();
         }
+    }
 
-        #region done
+    /// <summary>
+    /// Sudoku puzzle class
+    /// </summary>
+    class Sudoku
+    {
+        /// <summary>
+        /// Main data
+        /// </summary>
+        byte[,] sudoku = new byte[9, 9];
 
         /// <summary>
-        /// Randomly returns any digit 0 - 8
+        /// Constructor and generator
         /// </summary>
-        /// <returns></returns>
-        static byte GenerateDigit()
+        public Sudoku()
         {
-            Random rnd = new Random();
-            return (byte)rnd.Next(1, 10);
+            FillCell(0, 0);
+            FillCell(3, 3);
+            FillCell(6, 6);
+
+            FillSudoku(0, 3);
         }
 
-        /// <summary>
-        /// Randomly fill 1 cell
-        /// </summary>
-        static void FillCell(byte[,] sudoku, byte startRow, byte startCol)
-        {
-            for (byte i = startRow; i < startRow + 3; i++)
-            {
-                for (byte j = startCol; j < startCol + 3; j++)
-                {
-                ReGen:
-                    byte tmpDigit = GenerateDigit();
-                    if (DigitAlreadyIn_Cell(sudoku, i, j, tmpDigit)) goto ReGen;
-                    sudoku[i, j] = tmpDigit;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Get formatted sudoku string
-        /// </summary>
-        static string GetFormattedSudoku(byte[,] sudoku)
+        public override string ToString()
         {
             string output = String.Empty;
 
@@ -89,25 +72,74 @@ namespace MaslovaT_task11_practice2024
             return output;
         }
 
-        static void SetRandomConsoleColor()
+        /// <summary>
+        /// Fill one digit correctly, call itself once again;
+        /// <para>Finished - return true, failed - return false</para>
+        /// </summary>
+        bool FillSudoku(int row, int col)
         {
-            Random rnd = new();
-            int possibleColor = rnd.Next(1, 14);
-            if (possibleColor == (int)ConsoleColor.Cyan || Console.ForegroundColor == (ConsoleColor)possibleColor)
+            if (col == 9)
             {
-                possibleColor++;
+                if (++row == 9)
+                    return true; // Finished
+                col = 0; // Next line
             }
-            Console.ForegroundColor = (ConsoleColor)possibleColor;
+
+            if (sudoku[row, col] != 0) // If digit is not empty, go to the next one
+            {
+                return FillSudoku(row, col + 1);
+            }
+
+            for (byte newDigit = 1; newDigit < 10; newDigit++)
+            {
+                if (!DigitIsWrong((byte)row, (byte)col, newDigit))
+                {
+                    sudoku[row, col] = newDigit; // Write new digit
+
+                    if (FillSudoku(row, col + 1)) // Check finish conditions
+                        return true; //Finished
+
+                    sudoku[row, col] = 0; // If finish conditions are not met, erase cell
+                }
+
+            }
+
+            return false;
+
         }
 
-        #endregion
+        /// <summary>
+        /// Randomly fill 1 cell
+        /// </summary>
+        void FillCell(byte startRow, byte startCol)
+        {
+            for (byte i = startRow; i < startRow + 3; i++)
+            {
+                for (byte j = startCol; j < startCol + 3; j++)
+                {
+                ReGen:
+                    byte tmpDigit = GenerateDigit();
+                    if (DigitAlreadyIn_Cell(i, j, tmpDigit)) goto ReGen;
+                    sudoku[i, j] = tmpDigit;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Randomly returns any digit 0 - 8
+        /// </summary>
+        byte GenerateDigit()
+        {
+            Random rnd = new Random();
+            return (byte)rnd.Next(1, 10);
+        }
 
         #region Check
 
         /// <summary>
         /// Returns the start row/cell of a cell by any digit coords in it: (5,2)->(0,3)  (1,4)->(3,0)
         /// </summary>
-        static byte StartOfCell(byte row_cell)
+        byte StartOfCell(byte row_cell)
         {
             return (byte)(row_cell - row_cell % 3);
         }
@@ -115,7 +147,7 @@ namespace MaslovaT_task11_practice2024
         /// <summary>
         /// True if the newly generated digit is already in the row
         /// </summary>
-        static bool DigitAlreadyIn_Row(byte[,] sudoku, byte row, byte digit)
+        bool DigitAlreadyIn_Row(byte row, byte digit)
         {
             for (byte i = 0; i < 9; i++)
             {
@@ -128,7 +160,7 @@ namespace MaslovaT_task11_practice2024
         /// <summary>
         /// True if the newly generated digit is already in the col
         /// </summary>
-        static bool DigitAlreadyIn_Col(byte[,] sudoku, byte col, byte digit)
+        bool DigitAlreadyIn_Col(byte col, byte digit)
         {
             for (byte i = 0; i < 9; i++)
             {
@@ -141,7 +173,7 @@ namespace MaslovaT_task11_practice2024
         /// <summary>
         /// True if the newly generated digit is already in the cell
         /// </summary>
-        static bool DigitAlreadyIn_Cell(byte[,] sudoku, byte row, byte col, byte digit)
+        bool DigitAlreadyIn_Cell(byte row, byte col, byte digit)
         {
             byte startCol = StartOfCell(col);
             byte startRow = StartOfCell(row);
@@ -160,77 +192,11 @@ namespace MaslovaT_task11_practice2024
         /// <summary>
         /// True if the newly generated digit is already in the row, col or cell
         /// </summary>
-        static bool DigitIsWrong(byte[,] sudoku, byte row, byte col, byte digit)
+        bool DigitIsWrong(byte row, byte col, byte digit)
         {
-            return DigitAlreadyIn_Cell(sudoku, row, col, digit) || DigitAlreadyIn_Col(sudoku, col, digit) || DigitAlreadyIn_Row(sudoku, row, digit);
-        }
-
-        /// <summary>
-        /// True if coord is in cell
-        /// </summary>
-        static bool InCell(byte[,] sudoku, byte startRow, byte startCol, byte row, byte col)
-        {
-            return startCol == StartOfCell(col) && startRow == StartOfCell(row);
+            return DigitAlreadyIn_Cell(row, col, digit) || DigitAlreadyIn_Col(col, digit) || DigitAlreadyIn_Row(row, digit);
         }
 
         #endregion
-
-        /// <summary>
-        /// Fill sudoku with numbers
-        /// </summary>
-        static void FillSudoku(byte[,] sudoku)
-        {
-            #region fill three cells in the main diagonal
-            FillCell(sudoku, 0, 0);
-            FillCell(sudoku, 3, 3);
-            FillCell(sudoku, 6, 6);
-            #endregion
-
-            byte i = 0;
-            while (i < 9)
-            {
-                byte j = 0;
-            Redo:
-                while (j < 9)
-                {
-                    if (InCell(sudoku, 0, 0, i, j) || InCell(sudoku, 3, 3, i, j) || InCell(sudoku, 6, 6, i, j))
-                    {
-                        j++;
-                        continue;
-                    }
-
-                    byte oldDigit = sudoku[i, j];
-                    byte newDigit = oldDigit;
-
-                ReDigit:
-                    newDigit++;
-                    if (!DigitIsWrong(sudoku, i, j, newDigit))
-                    {
-                        sudoku[i, j] = newDigit;
-                    }
-                    else if (newDigit < 9)
-                    {
-                        goto ReDigit;
-                    }
-
-                    if (newDigit > 9)
-                    {
-                        SetRandomConsoleColor();
-                        i = 0; j = 3; goto Redo;
-                    }
-                    
-                    if (sudoku[i, j] == 0)
-                    {
-                        SetRandomConsoleColor();
-                        i = 0; j = 3; goto Redo;
-                    }
-
-                    Console.WriteLine(GetFormattedSudoku(sudoku));
-                    j++;
-                }
-                i++;
-            }
-        }
-
     }
 }
