@@ -34,6 +34,7 @@ namespace MaslovaT_task11_practice2024
             FillSudoku(0, 3);
         }
 
+        /// <returns>Nicely formatted sudoku</returns>
         public override string ToString()
         {
             string output = String.Empty;
