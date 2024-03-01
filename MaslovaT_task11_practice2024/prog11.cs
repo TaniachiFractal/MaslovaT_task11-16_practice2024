@@ -8,28 +8,37 @@ namespace MaslovaT_task11_practice2024
         {
             Sudoku sudoku = new();
 
-        Redo:
-            Console.WriteLine("Введите сложность от 0,1 до 0,9:");
+            #region input
+        Retype:
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Введите сложность от 0,1 до 0,9: \n >_ ");
             double difficulty = 0;
             try
             {
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 difficulty = double.Parse(Console.ReadLine());
             }
-            catch 
+            catch
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Ошибка ввода");
-                goto Redo;
+                goto Retype;
             }
 
-            Console.WriteLine("\nСохраните это в .txt файл и откройте \"Судокером\"");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("\nСохраните это в .txt файл и откройте \"Судокером\" (задание 12)");
+
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(sudoku.ToStringSudoker(difficulty));
 
-
-
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Показать решение? Нажмите любую клавишу");
             Console.ReadKey();
-            Console.WriteLine(sudoku.ToString());
+            Console.ForegroundColor = ConsoleColor.Cyan;
 
+            #endregion
+
+            Console.WriteLine(sudoku.ToString());
             Console.ReadKey();
         }
     }
@@ -96,8 +105,8 @@ namespace MaslovaT_task11_practice2024
         }
 
 
-        /// <param name="difficulty">0-fully solved, 1-empty; <0.1 - easiest, >0.9 - hordest</param>
-        /// <returns></returns>
+        /// <param name="difficulty">0-fully solved, 1-empty; 0.1 - easiest, 0.9 - hardest</param>
+        /// <returns>Sudoker compatible sudoku</returns>
         public string ToStringSudoker(double difficulty)
         {
             Random rnd = new();
