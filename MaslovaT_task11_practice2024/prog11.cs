@@ -13,7 +13,7 @@ namespace MaslovaT_task11_practice2024
         {
             FillSudoku(sudoku);
 
-            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(GetFormattedSudoku(sudoku));
 
             Console.ReadKey();
@@ -186,30 +186,45 @@ namespace MaslovaT_task11_practice2024
             FillCell(sudoku, 6, 6);
             #endregion
 
-            byte i = 0, j = 0;
+            byte i = 0;
             while (i < 9)
             {
+                byte j = 0;
+            Redo:
                 while (j < 9)
                 {
                     if (InCell(sudoku, 0, 0, i, j) || InCell(sudoku, 3, 3, i, j) || InCell(sudoku, 6, 6, i, j))
                     {
-                        Console.WriteLine(9);
                         j++;
                         continue;
                     }
-                    for (byte newDigit = 1; newDigit < 9; newDigit++)
+
+                    byte oldDigit = sudoku[i, j];
+                    byte newDigit = oldDigit;
+
+                ReDigit:
+                    newDigit++;
+                    if (!DigitIsWrong(sudoku, i, j, newDigit))
                     {
-                        if (!DigitIsWrong(sudoku, i, j, newDigit))
-                        {
-                            sudoku[i, j] = newDigit;
-                            break;
-                        }
-                        if (newDigit == 9)
-                        {
-                            SetRandomConsoleColor();
-                            i = 0; j = 3; 
-                        }
+                        sudoku[i, j] = newDigit;
                     }
+                    else if (newDigit < 9)
+                    {
+                        goto ReDigit;
+                    }
+
+                    if (newDigit > 9)
+                    {
+                        SetRandomConsoleColor();
+                        i = 0; j = 3; goto Redo;
+                    }
+                    
+                    if (sudoku[i, j] == 0)
+                    {
+                        SetRandomConsoleColor();
+                        i = 0; j = 3; goto Redo;
+                    }
+
                     Console.WriteLine(GetFormattedSudoku(sudoku));
                     j++;
                 }
