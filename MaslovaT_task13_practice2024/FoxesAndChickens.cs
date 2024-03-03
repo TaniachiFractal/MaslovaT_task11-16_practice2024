@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -19,6 +20,8 @@ namespace MaslovaT_task13_practice2024
 
         const byte CHICKEN_ID = 1;
         const byte FOX_ID = 2;
+        const byte FOX_ID2 = 2;
+        const byte FOX_ID3 = 3;
         const byte EMPTYCELL = 0;
         const byte NONEXISTENTCELL = 9;
         /// <summary>
@@ -30,6 +33,7 @@ namespace MaslovaT_task13_practice2024
         readonly Bitmap foxImg = Properties.Resources.fox80x80;
         readonly Bitmap noImage = Properties.Resources.empty;
 
+        private readonly Random rnd = new Random();
         #endregion
 
         #region arrays
@@ -42,11 +46,6 @@ namespace MaslovaT_task13_practice2024
         /// "Brother" of gameFieldButtonArray that holds actual data of the game state
         /// </summary>
         static private byte[,] gameFieldDataArray = new byte[FLD_SZ, FLD_SZ];
-
-        /// <summary>
-        /// Coordinates of foxes
-        /// </summary>
-        static Point[] foxesCoords = { new Point(0, 0), new Point(0, 0) };
 
         #endregion
 
@@ -88,11 +87,10 @@ namespace MaslovaT_task13_practice2024
             FillDataArrayDefault();
             DrawGameField();
             RenderChickenCount();
-            tbDebug.Text = Byte2DarrToString(gameFieldDataArray);
         }
 
         /// <summary>
-        /// Click event handler: selecting cells, checking if moving is possible, moving chickens, checking winning/loosing conditions
+        /// Click event handler: selecting cells, checking if moving is possible, moving chickens and foxes, checking winning/loosing conditions
         /// </summary>
         private void GridButton_Click(object sender, EventArgs e)
         {
@@ -102,7 +100,7 @@ namespace MaslovaT_task13_practice2024
             int row = Int32.Parse(currBt.Name[2].ToString());
             int col = Int32.Parse(currBt.Name[4].ToString());
 
-            if (gameFieldDataArray[row, col] == FOX_ID)
+            if (gameFieldDataArray[row, col] > CHICKEN_ID)
             {
                 MessageBox.Show("В выбранной клетке лиса!", "Некорректный ввод", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 ResetPrevAndSelectedCells();
@@ -116,7 +114,6 @@ namespace MaslovaT_task13_practice2024
 
             MoveChickenAndFox(previousCell, selectedCell);
 
-            tbDebug.Text = Byte2DarrToString(gameFieldDataArray);
 
             UpdateGameField();
 
@@ -159,18 +156,10 @@ namespace MaslovaT_task13_practice2024
                         gameFieldDataArray[i, j] = CHICKEN_ID;
                 }
             }
-            // Set Foxes
-            foxesCoords[0] = new Point(2, 2);
-            foxesCoords[1] = new Point(4, 2);
-            PutFoxesOnTheField();
-        }
 
-        /// <summary>
-        /// Load the fox data to the gameFieldDataArray
-        /// </summary>
-        private void PutFoxesOnTheField()
-        {
-            gameFieldDataArray[foxesCoords[0].Y, foxesCoords[0].X] = gameFieldDataArray[foxesCoords[1].Y, foxesCoords[1].X] = FOX_ID;
+            gameFieldDataArray[2, 2] = FOX_ID2;
+            gameFieldDataArray[2, 4] = FOX_ID3;
+
         }
 
         /// <summary>
@@ -191,7 +180,6 @@ namespace MaslovaT_task13_practice2024
         /// </summary>
         private void MoveChickenAndFox(Point prevCell, Point nextCell)
         {
-            tbDebug2.Text = prevCell.ToString() + Environment.NewLine + nextCell.ToString();
 
             if (prevCell.X == 0 && prevCell.Y == 0) // If the previous cell is default, no moving is done
             {
@@ -224,7 +212,7 @@ namespace MaslovaT_task13_practice2024
                 gameFieldDataArray[prevCell.Y, prevCell.X] = EMPTYCELL;
                 gameFieldDataArray[nextCell.Y, nextCell.X] = CHICKEN_ID;
 
-               // MoveFox();
+                MoveFox();
             }
             ResetPrevAndSelectedCells();
         }
@@ -285,156 +273,279 @@ namespace MaslovaT_task13_practice2024
 
         #endregion
 
-        #region Moving Foxes
-    
+        #region Moving Foxes - done not by me.
+
         /// <summary>
-        /// Move one of the foxes
+        /// Returns the entity at a cell or nonexistent cell
+        /// </summary>
+        private byte WhatIsInCell(int row, int col)
+        {
+            if (row < 0 || row >= FLD_SZ || col < 0 || col >= FLD_SZ)
+                return NONEXISTENTCELL;
+            else
+                return gameFieldDataArray[row, col];
+        }
+
+        /// <summary>
+        /// Find a fox across the field
+        /// </summary>
+        private (int row, int col) FindFox(byte foxId)
+        {
+            for (int row = 0; row < FLD_SZ; row++)
+            {
+                for (int col = 0; col < FLD_SZ; col++)
+                {
+                    if (gameFieldDataArray[row, col] == foxId)
+                        return (row, col);
+                }
+            }
+            return (-1, -1);
+        }
+
+        /// <summary>
+        /// Find the longest gobble chain
+        /// </summary>
+        private void FindFoxLongestGobbleChain(byte foxId, List<(int row, int col)> path)
+        {
+            // current fox position
+            var (row, col) = path[path.Count - 1];
+
+            // perspective paths right, left, down and up
+            List<(int row, int col)>[] AllDirections = new List<(int row, int col)>[]
+            {
+                new List<(int row, int col)>(path),
+                new List<(int row, int col)>(path),
+                new List<(int row, int col)>(path),
+                new List<(int row, int col)>(path),
+            };
+
+            // checks whether the fox can jump to a cell
+            bool CanJump(int testRow, int testCol)
+            {
+                for (int i = 0; i < path.Count - 1; i++)
+                {
+                    var (r0, c0) = path[i];
+                    var (r1, c1) = path[i + 1];
+
+                    if (r0 == row || c0 == col || r1 == testRow || c1 == testCol)
+                        return false;
+
+                    (r0, c0) = path[path.Count - i - 1];
+                    (r1, c1) = path[path.Count - i - 2];
+
+                    if (r0 == row || c0 == col || r1 == testRow || c1 == testCol)
+                        return false;
+                }
+
+                var c = WhatIsInCell(testRow, testCol);
+                return c == EMPTYCELL || c == foxId;
+            }
+
+            if (WhatIsInCell(row, col + 1) == CHICKEN_ID && CanJump(row, col + 2))
+            {
+                AllDirections[0].Add((row, col + 2));
+                FindFoxLongestGobbleChain(foxId, AllDirections[0]);
+            }
+
+            if (WhatIsInCell(row, col - 1) == CHICKEN_ID && CanJump(row, col - 2))
+            {
+                AllDirections[1].Add((row, col - 2));
+                FindFoxLongestGobbleChain(foxId, AllDirections[1]);
+            }
+
+            if (WhatIsInCell(row + 1, col) == CHICKEN_ID && CanJump(row + 2, col))
+            {
+                AllDirections[2].Add((row + 2, col));
+                FindFoxLongestGobbleChain(foxId, AllDirections[2]);
+            }
+
+            if (WhatIsInCell(row - 1, col) == CHICKEN_ID && CanJump(row - 2, col))
+            {
+                AllDirections[3].Add((row - 2, col));
+                FindFoxLongestGobbleChain(foxId, AllDirections[3]);
+            }
+
+            int index = 0;
+            for (int i = 1; i < AllDirections.Length; i++)
+            {
+                if (AllDirections[i].Count > AllDirections[index].Count)
+                    index = i;
+                else if (AllDirections[i].Count == AllDirections[index].Count && rnd.NextDouble() < 0.5)
+                    index = i;
+            }
+
+            path.Clear();
+            path.AddRange(AllDirections[index]);
+        }
+
+        /// <returns>Some move for a fox</returns>
+        private List<(int row, int col)> FindFoxMove(byte foxId, out bool Gobble)
+        {
+            List<(int row, int col)> output = new List<(int row, int col)>()
+            {
+                FindFox(foxId)
+            };
+
+            FindFoxLongestGobbleChain(foxId, output);
+
+            Gobble = output.Count > 1;
+            if (!Gobble)
+            {
+
+                List<int> AllDirections = new List<int>();
+
+                var (row, col) = output[0];
+
+                if (WhatIsInCell(row, col + 1) == EMPTYCELL)
+                    AllDirections.Add(0);
+                if (WhatIsInCell(row, col - 1) == EMPTYCELL)
+                    AllDirections.Add(1);
+                if (WhatIsInCell(row + 1, col) == EMPTYCELL)
+                    AllDirections.Add(2);
+                if (WhatIsInCell(row - 1, col) == EMPTYCELL)
+                    AllDirections.Add(3);
+
+                int index;
+                if (AllDirections.Count == 0)
+                {
+                    output.Clear();
+                    return output;
+                }
+                else if (AllDirections.Count == 1)
+                {
+                    index = AllDirections[0];
+                }
+                else
+                {
+                    AllDirections.Remove(3);
+                    index = AllDirections[rnd.Next(AllDirections.Count)];
+                }
+
+                switch (index)
+                {
+
+                    case 0:
+                        col++;
+                        break;
+                    case 1:
+                        col--;
+                        break;
+                    case 2:
+                        row++;
+                        break;
+                    case 3:
+                        row--;
+                        break;
+                }
+                output.Add((row, col));
+            }
+            return output;
+
+        }
+
+        /// <returns>The move that will be done</returns>
+        private List<(int row, int col)> DecideFoxMove()
+        {
+            List<(int row, int col)>
+                foxPath2 = FindFoxMove(FOX_ID2, out bool Gobble2),
+                foxPath3 = FindFoxMove(FOX_ID3, out bool Gobble3);
+
+            if (Gobble2)
+            {
+                if (Gobble3)
+                {
+                    if (foxPath2.Count == foxPath3.Count)
+                    {
+                        if (rnd.NextDouble() < 0.5)
+                            return foxPath3;
+                        else
+                            return foxPath2;
+                    }
+                    else if (foxPath2.Count > foxPath3.Count)
+                        return foxPath2;
+                    else
+                        return foxPath3;
+                }
+                else
+                    return foxPath2;
+            }
+            else if (Gobble3)
+                return foxPath3;
+            else if (foxPath2.Count != 0)
+            {
+                if (foxPath3.Count != 0)
+                {
+                    if (rnd.NextDouble() < 0.5)
+                        return foxPath3;
+                    else
+                        return foxPath2;
+                }
+                else
+                    return foxPath2;
+            }
+            else if (foxPath3.Count != 0)
+                return foxPath3;
+            else
+                return foxPath2;
+
+        }
+
+        /// <summary>
+        /// Empty a cell
+        /// </summary>
+        private void EmptyCell(int row, int col)
+        {
+            gameFieldDataArray[row, col] = EMPTYCELL;
+        }
+
+        /// <summary>
+        /// Move one of the foxes - done not by me.
         /// </summary>
         private void MoveFox()
         {
-            Random rnd = new Random();
-            int currFoxID = rnd.Next(0, 2);
 
-            int foxRow = foxesCoords[currFoxID].Y;
-            int foxCol = foxesCoords[currFoxID].X;
-
-            DeleteFox(foxRow, foxCol);
-
-            int destinationRow = 0;
-            int destinationCol = 0;
-
-            if (FoxCanEat(foxRow,foxCol))
+            List<(int row, int col)> move = DecideFoxMove();
+            if (move.Count != 0)
             {
-                destinationRow = ChickenToEat(foxRow, foxCol).X;
-                destinationCol = ChickenToEat(foxRow, foxCol).Y;
-            }
-            else
-            {
-                destinationRow = MoveSomewhere(foxRow, foxCol).X;
-                destinationCol = MoveSomewhere(foxRow, foxCol).Y;
-            }
-
-            foxesCoords[currFoxID].Y = destinationRow;
-            foxesCoords[currFoxID].X = destinationCol;
-
-            PutFoxesOnTheField();
-        }
- 
-        /// <summary>
-        /// Return an empty cell next to the fox
-        /// </summary>
-        private Point MoveSomewhere(int foxRow, int foxCol)
-        {
-            var dataArr = gameFieldDataArray;
-
-            if      (dataArr[foxRow, foxCol + 1] == EMPTYCELL)
-            {
-                return new Point(foxRow, foxCol + 1);
-            }
-
-
-            else if (dataArr[foxRow + 1, foxCol] == EMPTYCELL)
-            {
-                return new Point(foxRow + 1, foxCol);
-            }
-
-
-            else if (dataArr[foxRow, foxCol - 1] == EMPTYCELL)
-            {
-                return new Point(foxRow, foxCol - 1);
-            }
-
-
-            else if (dataArr[foxRow - 1, foxCol] == EMPTYCELL)
-            {
-                return new Point(foxRow - 1, foxCol);
-            }
-            return new Point(foxRow,foxCol);
-        }
-
-        /// <summary>
-        /// Check if the fox move is legal (Checker rules)
-        /// </summary>
-        private bool FoxCanMove(int foxRow, int foxCol, int destinationRow, int destinationCol)
-        {
-            if (gameFieldDataArray[destinationRow, destinationCol] != EMPTYCELL)
-            {
-                return false;
-            }
-            else if (destinationRow < 0 || destinationCol < 0 || destinationCol > 6 || destinationRow > 6)
-            {
-                return false;
-            }
-            else if (!ButtonShouldExist(destinationRow, destinationCol))
-            {
-                return false;
-            }
-            else if (Math.Abs(foxCol - destinationCol) == 1 && Math.Abs(foxRow - destinationRow) == 1)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Check all possible eating directions
-        /// </summary>
-        private Point ChickenToEat(int foxRow, int foxCol)
-        {
-            var dataArr = gameFieldDataArray;
-
-            if (dataArr[foxRow, foxCol + 1] == CHICKEN_ID)
-            {
-                if (dataArr[foxRow, foxCol + 2] == EMPTYCELL)
+                string str = "";
+                for (int i = 0; i < move.Count; i++)
+                    str += move[i].row + "  " + move[i].col + "\r\n";
+                var (row0, col0) = move[0];
+                for (int i = 1; i < move.Count; i++)
                 {
-                    return new Point(foxRow, foxCol + 1);
+                    var (row1, col1) = move[i];
+
+                    gameFieldDataArray[row1, col1] =
+                        gameFieldDataArray[row0, col0];
+
+                    EmptyCell(row0, col0);
+
+
+                    int dc = col1 - col0, dr = row1 - row0;
+                    if (dc != 0)
+                    {
+                        if (dc == 2)
+                            EmptyCell(row1, col1 - 1);
+                        else if (dc == -2)
+                            EmptyCell(row1, col1 + 1);
+
+                    }
+                    else if (dr != 0)
+                    {
+                        if (dr == 2)
+                            EmptyCell(row1 - 1, col1);
+                        else if (dr == -2)
+                            EmptyCell(row1 + 1, col1);
+
+                    }
+                    UpdateGameField();
+
+
+
+                    (row0, col0) = (row1, col1);
                 }
             }
 
-
-            else if (dataArr[foxRow + 1, foxCol] == CHICKEN_ID)
-            {
-                if (dataArr[foxRow + 2, foxCol] == EMPTYCELL)
-                {
-                    return new Point(foxRow + 1, foxCol);
-                }
-            }
-
-
-            else if (dataArr[foxRow, foxCol - 1] == CHICKEN_ID)
-            {
-                if (dataArr[foxRow, foxCol - 2] == EMPTYCELL)
-                {
-                    return new Point(foxRow, foxCol - 1);
-                }
-            }
-
-
-            else if (dataArr[foxRow - 1, foxCol] == CHICKEN_ID)
-            {
-                if (dataArr[foxRow - 2, foxCol] == EMPTYCELL)
-                {
-                    return new Point(foxRow - 1, foxCol);
-                }
-            }
-
-            return new Point(-1, 0);
-        }     
-
-        /// <summary>
-        /// True if there are legal eating moves
-        /// </summary>
-        private bool FoxCanEat(int foxRow, int foxCol)
-        {
-            return ChickenToEat(foxRow, foxCol).X != -1;
-        }
-
-        /// <summary>
-        /// Remove fox from the target cell
-        /// </summary>
-        private void DeleteFox(int foxRow, int foxCol)
-        {
-            gameFieldDataArray[foxRow, foxCol] = EMPTYCELL;
         }
 
         #endregion
@@ -464,9 +575,6 @@ namespace MaslovaT_task13_practice2024
                     currBt.FlatAppearance.BorderSize = 1;
                     currBt.Click += GridButton_Click;
 
-                    currBt.Text = i + "_" + j;
-                    currBt.ForeColor = Color.Black;
-
                     if (ButtonShouldExist(i, j))
                     {
                         Controls.Add(gameFieldButtonArray[i, j]);
@@ -488,6 +596,7 @@ namespace MaslovaT_task13_practice2024
                     var currBt = gameFieldButtonArray[i, j];
                     currBt.Image = GetImage(i, j);
 
+
                     if (selectedCell.X == j && selectedCell.Y == i)
                     {
                         currBt.FlatAppearance.BorderColor = Color.Gray;
@@ -500,6 +609,7 @@ namespace MaslovaT_task13_practice2024
                     }
                 }
             }
+            RenderChickenCount();
         }
 
         /// <summary>
@@ -513,12 +623,11 @@ namespace MaslovaT_task13_practice2024
             lbTextChicksLeft.Top = 40 + CELL_SIZE * 5;
             lbChickenCount.Top = lbTextChicksLeft.Bottom + 10;
 
-            tbDebug.Size = new System.Drawing.Size(CELL_SIZE * 2 - 20, CELL_SIZE * 2 - 20);
-            tbDebug.Left = 40 + CELL_SIZE * 5;
+            pbChick.Size = new System.Drawing.Size(CELL_SIZE*2-20,CELL_SIZE*2-20);
+            pbChick.Location = new System.Drawing.Point(CELL_SIZE * 5 + 40, 10);
 
-            tbDebug2.Top = lbTextChicksLeft.Top;
-            tbDebug2.Left = tbDebug.Left;
-            tbDebug2.Size = tbDebug.Size;
+            pbFox.Size = pbChick.Size;
+            pbFox.Location = new System.Drawing.Point(CELL_SIZE * 5 + 40, CELL_SIZE * 5 + 40);
         }
 
         /// <summary>
@@ -581,7 +690,8 @@ namespace MaslovaT_task13_practice2024
             {
                 case CHICKEN_ID:
                     return chickenImg;
-                case FOX_ID:
+                case FOX_ID2:
+                case FOX_ID3:
                     return foxImg;
                 case EMPTYCELL:
                     return noImage;

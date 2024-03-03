@@ -32,8 +32,10 @@
             this.btHelp = new System.Windows.Forms.Button();
             this.lbTextChicksLeft = new System.Windows.Forms.Label();
             this.lbChickenCount = new System.Windows.Forms.Label();
-            this.tbDebug = new System.Windows.Forms.TextBox();
-            this.tbDebug2 = new System.Windows.Forms.TextBox();
+            this.pbChick = new System.Windows.Forms.PictureBox();
+            this.pbFox = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pbChick)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbFox)).BeginInit();
             this.SuspendLayout();
             // 
             // btHelp
@@ -68,25 +70,25 @@
             this.lbChickenCount.TabIndex = 2;
             this.lbChickenCount.Text = "00";
             // 
-            // tbDebug
+            // pbChick
             // 
-            this.tbDebug.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbDebug.Location = new System.Drawing.Point(547, 20);
-            this.tbDebug.Multiline = true;
-            this.tbDebug.Name = "tbDebug";
-            this.tbDebug.ReadOnly = true;
-            this.tbDebug.Size = new System.Drawing.Size(180, 180);
-            this.tbDebug.TabIndex = 3;
+            this.pbChick.Image = global::MaslovaT_task13_practice2024.Properties.Resources.chicken;
+            this.pbChick.Location = new System.Drawing.Point(593, 12);
+            this.pbChick.Name = "pbChick";
+            this.pbChick.Size = new System.Drawing.Size(134, 136);
+            this.pbChick.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbChick.TabIndex = 3;
+            this.pbChick.TabStop = false;
             // 
-            // tbDebug2
+            // pbFox
             // 
-            this.tbDebug2.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbDebug2.Location = new System.Drawing.Point(547, 468);
-            this.tbDebug2.Multiline = true;
-            this.tbDebug2.Name = "tbDebug2";
-            this.tbDebug2.ReadOnly = true;
-            this.tbDebug2.Size = new System.Drawing.Size(180, 180);
-            this.tbDebug2.TabIndex = 4;
+            this.pbFox.Image = global::MaslovaT_task13_practice2024.Properties.Resources.fox;
+            this.pbFox.Location = new System.Drawing.Point(593, 512);
+            this.pbFox.Name = "pbFox";
+            this.pbFox.Size = new System.Drawing.Size(134, 136);
+            this.pbFox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbFox.TabIndex = 4;
+            this.pbFox.TabStop = false;
             // 
             // FoxesAndChickens
             // 
@@ -95,10 +97,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(739, 660);
-            this.Controls.Add(this.tbDebug2);
+            this.Controls.Add(this.pbFox);
+            this.Controls.Add(this.pbChick);
             this.Controls.Add(this.lbChickenCount);
             this.Controls.Add(this.lbTextChicksLeft);
-            this.Controls.Add(this.tbDebug);
             this.Controls.Add(this.btHelp);
             this.Font = new System.Drawing.Font("Bahnschrift SemiCondensed", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.ForeColor = System.Drawing.SystemColors.ButtonFace;
@@ -109,6 +111,8 @@
             this.Name = "FoxesAndChickens";
             this.Text = "Лисы и Куры";
             this.Load += new System.EventHandler(this.FoxesAndChickens_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.pbChick)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbFox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -118,8 +122,8 @@
         private System.Windows.Forms.Button btHelp;
         private System.Windows.Forms.Label lbTextChicksLeft;
         private System.Windows.Forms.Label lbChickenCount;
-        private System.Windows.Forms.TextBox tbDebug;
-        private System.Windows.Forms.TextBox tbDebug2;
+        private System.Windows.Forms.PictureBox pbChick;
+        private System.Windows.Forms.PictureBox pbFox;
     }
 }
 
